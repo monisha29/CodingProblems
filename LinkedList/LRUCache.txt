@@ -1,0 +1,186 @@
+
+struct Node {
+  int key;
+  int value;
+    Node* prev;
+    Node* next;
+};
+
+
+class DLL {
+public :
+    Node* head;
+    Node* end;
+    
+public:
+    DLL() {
+        head = NULL;
+        end = NULL;
+    };
+    
+    Node* getNode(int key, int value) {
+        Node* n = new Node();
+        n->key = key;
+        n->value = value;
+        n->prev = NULL;
+        n->next = NULL;
+        return n;
+        
+    }
+    Node* insertInBeg(int key, int value) {
+        Node* temp = getNode(key,value);
+        if(head == NULL && end == NULL) {
+            head = temp;
+            end = temp;
+        } else if (head != NULL) {
+            temp->next = head;
+            head = temp;
+        }
+        return temp;
+    }
+    
+    Node* insertInEnd(int key, int value) {
+        Node* temp = getNode(key, value);
+        if (end != NULL) {
+            end->next = temp;
+            temp->prev = end;
+            end = temp;
+        }
+        return temp;
+    }
+    
+    int deleteFirst() {
+        if (head != NULL) {
+        int val = head->key;
+        if (head == end) {
+            head  = NULL;
+            end = NULL;
+        } else {
+            head = head->next;
+            head->prev = NULL;
+         }
+            return val;
+        } else {
+            return -1;
+        }
+        
+    }
+    void deleteN(Node* temp) {
+        if (temp == head && head != NULL) {
+            head = head->next;
+            //head->prev = NULL;
+        } else {
+            if (temp->prev != NULL)
+            temp->prev->next = temp->next;
+            if (temp->next != NULL)
+            temp->next->prev = temp->prev;
+        }
+    }
+    
+};
+
+class LRUCache {
+    int curr_cap = 0;
+    int max_cap;
+    DLL* dl;
+    map<int, Node*> mp;
+    map<int, Node*>::iterator mpi;
+public:
+    LRUCache(int capacity) {
+        dl = new DLL();
+        max_cap = capacity;
+    }
+    
+    int get(int key) {
+        /* if we get a value
+        we need to check if it is present at the end if so no change
+        else 
+        delete the value from present loc and insert at the end
+        and update in map
+        */
+        mpi = mp.find(key);
+        if (mpi == mp.end())
+            return -1;
+        else {
+            Node* val = mpi->second;
+            
+            if(dl->end == val) {
+                return val->value;
+            } else {
+                dl->deleteN(val);
+                val = dl->insertInEnd(val->key,val->value);
+                mp[key] = val;
+                return val->value;
+            }
+            
+        }
+        
+        
+        
+    }
+    
+    void put(int key, int value) {
+        /*
+            if already present 
+            delete and reinsert
+            update in map
+            if not present
+                check for capapcity
+                    if capacity is full
+                        delete first
+                        only at this instance delete from map
+                        add new node at the end
+                        add in map
+                    else
+                        add new node at the end
+                        add in map
+        */
+        
+        mpi = mp.find(key);
+        if (mpi != mp.end()) {
+            Node* val = mpi->second;
+            dl->deleteN(val);
+            dl->insertInEnd(val->key, val->value);
+            mp[key] = val;
+        } else {
+            if (curr_cap == 0 ) {
+                Node* temp = dl->insertInBeg(key,value);
+                mp[key] = temp; 
+            } else if (curr_cap == max_cap) {
+                //cout << " for :: " << key << endl;
+                 Node* temp = dl->insertInEnd(key,value);
+                int del_val = dl->deleteFirst();
+                if (del_val != -1) {
+                mp.erase(del_val);
+                mp[key] = temp;
+                }
+               
+            } else {
+                Node* temp = dl->insertInEnd(key,value);
+                mp[key] = temp;
+            }
+            if (curr_cap < max_cap)
+              curr_cap++;
+            
+        }
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
+
+/*
+
+2 = head
+h,e
+2 
+   3 , 4
+   
+ 
+
+
+*/
