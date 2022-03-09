@@ -73,7 +73,37 @@ public:
 
 /*
 
+// siimpler code
 
+class Solution {
+public:
+    string simplifyPath(string path) {
+
+     
+    // stringstream class check1
+    stringstream check1(path);
+     
+    string t;
+     
+    // Tokenizing w.r.t. space ' '
+        vector<string> words;
+        string op;
+    while(getline(check1, t, '/'))
+    {
+        if (t == "" || t == ".") continue;
+        if ( t == ".." && words.size() > 0 ) words.pop_back();
+        if ( t != "..") words.push_back(t);
+    }
+        
+        for (auto str : words) 
+            op = op + "/" + str;
+        
+        if (op.empty())
+            return "/";
+        else
+            return op;
+    }
+};
 
 
 
