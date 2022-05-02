@@ -36,3 +36,47 @@ int minimumElements(vector<int> &num, int x)
 		return dp[n][x];
 	
 }
+
+
+// optimised space array 
+int minimumElements(vector<int> &num, int x)
+{
+    // Write your code here.
+	if (x == 0)
+		return 0;
+	int n = num.size();
+	vector<vector<int>> dp(n+1,vector<int>(x+1,INT_MAX));
+	vector<int> prev(x+1, INT_MAX);
+	vector<int> curr(x+1, INT_MAX);
+	//vector<vector<int>> dp(n+1, vector<int>(W+1,0));
+	
+	//std::sort(num.begin() , num.end());
+	for(int i = 1 ; i <= n ; i++) {
+		int item = num[i-1];
+		for(int j = 1 ; j <= x ; j++) {
+			int take = INT_MAX ; int nottake = INT_MAX;
+			if (j == item) {
+				take = 1;
+			} else if ( j > item && curr[j-item] != INT_MAX && curr[j-item] >= 0 ) {
+				take = curr[j-item] + 1;
+			}
+			if (prev[j] != INT_MAX && prev[j] >= 0)
+				nottake = prev[j];
+
+			if (take == INT_MAX && nottake == INT_MAX)
+				curr[j] = -1;
+			else {
+				curr[j] = min(take,nottake);
+			}
+		}
+		
+		prev = curr;
+	}
+	
+	
+	if (curr[x] == INT_MAX || curr[x] == -1)
+		return -1;
+	else
+		return curr[x];
+	
+}
